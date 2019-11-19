@@ -1,0 +1,2 @@
+include ':app', ':scabbard-annotations', ':scabbard-plugin', ':scabbard'
+rootProject.name='scabbard-parent'
