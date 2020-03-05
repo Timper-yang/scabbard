@@ -1,7 +1,7 @@
 buildscript {
     ext.kotlin_version = '1.3.50'
 
-    ext.versions = ['minSdk'         : 24,
+    ext.versions = ['minSdk'         : 15,
                     'compileSdk'     : 28,
                     'supportLibrary' : '28.0.0',
                     'androidPlugin'  : '3.2.1',
@@ -98,7 +98,7 @@ buildscript {
         jcenter()
         gradlePluginPortal()
         maven {
-            url '/Users/tangpeng.yang/workspace/lonelysword/repo'
+            url '/Users/tangpeng.yang/workspace/scabbard/repo'
         }
     }
 
@@ -110,7 +110,9 @@ buildscript {
 
         classpath 'com.jakewharton:butterknife-gradle-plugin:9.0.0'
 
-        classpath deps.aspectj.aspectjtools
+        classpath 'com.hujiang.aspectjx:gradle-android-plugin-aspectjx:2.0.6'
+//        classpath 'com.timper:scabbard-plugin:1.2.9'
+//        classpath deps.aspectj.aspectjtools
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
@@ -137,7 +139,7 @@ allprojects {
         maven { url "https://dl.bintray.com/timper/maven" }
         jcenter()
         maven {
-            url '/Users/tangpeng.yang/workspace/lonelysword/repo'
+            url '/Users/tangpeng.yang/workspace/scabbard/repo'
         }
     }
 }
