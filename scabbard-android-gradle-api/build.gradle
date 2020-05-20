@@ -1,0 +1,10 @@
+apply from: '../gradle/common/common.gradle'
+
+dependencies {
+    implementation gradleApi()
+    implementation project(':scabbard-android-gradle-v3_0')
+    implementation project(':scabbard-android-gradle-v3_2')
+    implementation project(':scabbard-kotlinx')
+    compileOnly 'com.android.tools.build:gradle:3.3.0'
+    testCompileOnly 'com.android.tools.build:gradle:3.3.0'
+}

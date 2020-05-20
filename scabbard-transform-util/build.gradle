@@ -1,0 +1,7 @@
+apply from: '../gradle/common/common.gradle'
+
+dependencies {
+    implementation project(':scabbard-transform-spi')
+    implementation project(':scabbard-kotlinx')
+    api 'org.apache.commons:commons-compress:1.19'
+}

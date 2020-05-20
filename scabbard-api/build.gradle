@@ -1,0 +1,14 @@
+apply from: '../gradle/common/common.gradle'
+
+dependencies {
+    api gradleApi()
+    kapt 'com.google.auto.service:auto-service:1.0-rc6'
+    api project(':scabbard-kotlinx')
+    api project(':scabbard-android-gradle-api')
+    api project(':scabbard-transform-spi')
+    api project(':scabbard-transform-util')
+    api project(':scabbard-task-spi')
+    api project(':scabbard-annotations')
+    compileOnly 'com.android.tools.build:gradle:3.0.0'
+    testCompileOnly 'com.android.tools.build:gradle:3.0.0'
+}

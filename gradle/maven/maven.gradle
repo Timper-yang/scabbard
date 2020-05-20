@@ -1,0 +1,240 @@
+apply plugin: 'maven-publish'
+
+
+task buildSdk() {
+    dependsOn ':scabbard-android-gradle-v3_0:assemble'
+    dependsOn ':scabbard-android-gradle-v3_2:assemble'
+    dependsOn ':scabbard-android-gradle-api:assemble'
+    dependsOn ':scabbard-annotations:assemble'
+    dependsOn ':scabbard-kotlinx:assemble'
+    dependsOn ':scabbard-task-spi:assemble'
+    dependsOn ':scabbard-transform-spi:assemble'
+    dependsOn ':scabbard-transform-util:assemble'
+    dependsOn ':scabbard-api:assemble'
+//    dependsOn(':scabbard-gradle-plugin:assemble')
+}
+
+task lintSdk() {
+
+}
+
+static def getDependencyNode(scope, groupId, artifactId, version) {
+    Node node = new Node(null, 'dependency')
+    node.appendNode('groupId', groupId)
+    node.appendNode('artifactId', artifactId)
+    node.appendNode('version', version)
+    node.appendNode('scope', scope)
+    return node
+}
+
+def gitShortRev() {
+    def gitCommit = ""
+    def proc = "git rev-parse --short HEAD".execute()
+    proc.in.eachLine { line -> gitCommit = line }
+    proc.err.eachLine { line -> println line }
+    proc.waitFor()
+    return gitCommit
+}
+
+def getPublishReleaseUrl(String publishMode) {
+    return "release".equals(publishMode) ? "https://oss.sonatype.org/service/local/staging/deploy/maven2/" : "https://oss.sonatype.org/content/repositories/snapshots/"
+}
+
+def setScm(scm) {
+    scm.appendNode('connection', 'https://github.com/lwns/scabbard.git')
+
+    def commit
+    if ("${System.env.ORANGE}".equalsIgnoreCase("true")) {
+        commit = "${System.env.ORANGE_COMMIT}"
+    } else {
+        commit = gitShortRev()
+    }
+    scm.appendNode('url', "https://github.com/lwns/scabbard/commit/$commit")
+}
+
+def setGeneratePomFileAndDepends(publicationName) {
+    model {
+        tasks."generatePomFileFor${publicationName.capitalize()}Publication" {
+            destination = file("$buildDir/pom/$publicationName-pom.xml")
+            dependsOn(buildSdk)
+            dependsOn(lintSdk)
+        }
+    }
+}
+
+def publicationVersion = project.ARTIFACT_VERSION
+def scabbardGroupId = 'com.github.scabbard'
+
+publishing {
+    publications {
+        scabbardAnnotations(MavenPublication) {
+            groupId scabbardGroupId
+            artifactId 'scabbard-annotations'
+            version publicationVersion
+            artifact("scabbard-annotations/build/libs/scabbard-annotations.jar")
+
+            pom.withXml {
+                def root = asNode()
+                def scm = root.appendNode('scm')
+                setScm(scm)
+            }
+        }
+
+        scabbardKotlinx(MavenPublication) {
+            groupId scabbardGroupId
+            artifactId 'scabbard-kotlinx'
+            version publicationVersion
+            artifact("scabbard-kotlinx/build/libs/scabbard-kotlinx.jar")
+
+            pom.withXml {
+                def root = asNode()
+                def scm = root.appendNode('scm')
+                setScm(scm)
+            }
+        }
+
+        scabbardTaskSpi(MavenPublication) {
+            groupId scabbardGroupId
+            artifactId 'scabbard-task-spi'
+            version publicationVersion
+            artifact("scabbard-task-spi/build/libs/scabbard-task-spi.jar")
+
+            pom.withXml {
+                def root = asNode()
+                def scm = root.appendNode('scm')
+                setScm(scm)
+            }
+        }
+
+        scabbardTransformSpi(MavenPublication) {
+            groupId scabbardGroupId
+            artifactId 'scabbard-transform-spi'
+            version publicationVersion
+            artifact("scabbard-transform-spi/build/libs/scabbard-transform-spi.jar")
+
+            pom.withXml {
+                def root = asNode()
+                def scm = root.appendNode('scm')
+                setScm(scm)
+            }
+        }
+
+        scabbardAndroidGradleV30(MavenPublication) {
+            groupId scabbardGroupId
+            artifactId 'scabbard-android-gradle-v3_0'
+            version publicationVersion
+            artifact("scabbard-android-gradle-v3_0/build/libs/scabbard-android-gradle-v3_0.jar")
+
+            pom.withXml {
+                def root = asNode()
+                def scm = root.appendNode('scm')
+                setScm(scm)
+            }
+        }
+
+        scabbardAndroidGradleV32(MavenPublication) {
+            groupId scabbardGroupId
+            artifactId 'scabbard-android-gradle-v3_2'
+            version publicationVersion
+            artifact("scabbard-android-gradle-v3_2/build/libs/scabbard-android-gradle-v3_2.jar")
+
+            pom.withXml {
+                def root = asNode()
+                def scm = root.appendNode('scm')
+                setScm(scm)
+            }
+        }
+
+        scabbardAndroidGradleApi(MavenPublication) {
+            groupId scabbardGroupId
+            artifactId 'scabbard-android-gradle-api'
+            version publicationVersion
+            artifact("scabbard-android-gradle-api/build/libs/scabbard-android-gradle-api.jar")
+
+            pom.withXml {
+                def root = asNode()
+                def scm = root.appendNode('scm')
+                def dependencies = root.appendNode('dependencies')
+                dependencies.append(getDependencyNode('compile', scabbardGroupId, 'scabbard-android-gradle-v3_2', publicationVersion))
+                dependencies.append(getDependencyNode('compile', scabbardGroupId, 'scabbard-android-gradle-v3_0', publicationVersion))
+                dependencies.append(getDependencyNode('compile', scabbardGroupId, 'scabbard-kotlinx', publicationVersion))
+                setScm(scm)
+            }
+        }
+
+        scabbardTransformUtil(MavenPublication) {
+            groupId scabbardGroupId
+            artifactId 'scabbard-transform-util'
+            version publicationVersion
+            artifact("scabbard-transform-util/build/libs/scabbard-transform-util.jar")
+
+            pom.withXml {
+                def root = asNode()
+                def scm = root.appendNode('scm')
+                def dependencies = root.appendNode('dependencies')
+                dependencies.append(getDependencyNode('compile', scabbardGroupId, 'scabbard-transform-spi', publicationVersion))
+                dependencies.append(getDependencyNode('compile', scabbardGroupId, 'scabbard-kotlinx', publicationVersion))
+                setScm(scm)
+            }
+        }
+
+        scabbardApi(MavenPublication) {
+            groupId scabbardGroupId
+            artifactId 'scabbard-api'
+            version publicationVersion
+            artifact("scabbard-api/build/libs/scabbard-api.jar")
+
+            pom.withXml {
+                def root = asNode()
+                def scm = root.appendNode('scm')
+                def dependencies = root.appendNode('dependencies')
+                dependencies.append(getDependencyNode('compile', scabbardGroupId, 'scabbard-transform-util', publicationVersion))
+                dependencies.append(getDependencyNode('compile', scabbardGroupId, 'scabbard-annotations', publicationVersion))
+                dependencies.append(getDependencyNode('compile', scabbardGroupId, 'scabbard-android-gradle-api', publicationVersion))
+                setScm(scm)
+            }
+        }
+        scabbardGradlePlugin(MavenPublication) {
+            groupId scabbardGroupId
+            artifactId 'scabbard-gradle-plugin'
+            version publicationVersion
+            artifact("scabbard-gradle-plugin/build/libs/scabbard-gradle-plugin.jar")
+
+            pom.withXml {
+                def root = asNode()
+                def scm = root.appendNode('scm')
+                def dependencies = root.appendNode('dependencies')
+                dependencies.append(getDependencyNode('compile', scabbardGroupId, 'scabbard-api', publicationVersion))
+                setScm(scm)
+            }
+        }
+    }
+    repositories {
+//    if(project.ext.DEPENDENCY_REMOTE.equals("true")){
+//      maven {
+//        url = getPublishReleaseUrl(project.ext.PUBLISH_MODE)
+//        //认证用户和密码
+//        credentials {
+//          username 'tp.yang'
+//          password 'LzzJp#JCf54bfs%'
+//        }
+//      }
+//    }else {
+        mavenLocal()
+//    }
+    }
+}
+
+
+//生成pom xml 文件
+//setGeneratePomFileAndDepends('scabbard-android-gradle-api')
+//setGeneratePomFileAndDepends('scabbard-android-gradle-v3_0')
+//setGeneratePomFileAndDepends('scabbard-android-gradle-v3_2')
+//setGeneratePomFileAndDepends('scabbard-annotations')
+//setGeneratePomFileAndDepends('scabbard-kotlinx')
+//setGeneratePomFileAndDepends('scabbard-task-spi')
+//setGeneratePomFileAndDepends('scabbard-transform-spi')
+//setGeneratePomFileAndDepends('scabbard-transform-util')
+//setGeneratePomFileAndDepends('scabbard-api')
+//setGeneratePomFileAndDepends('scabbard-gradle-plugin')
+
